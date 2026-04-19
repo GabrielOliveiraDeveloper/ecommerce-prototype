@@ -3,7 +3,6 @@ import Shop from '../models/Shop.js';
 const createShop = async (req, res) => {
     const { name, description, category, ownerID } = req.body;
 
-    
     const newShop = new Shop({
         name,
         description,
@@ -86,7 +85,7 @@ const deleteShop = async (req, res) => {
 
 
 const createProduct = async (req, res) => {
-    
+
 }
 
 const getProducts = async (req, res) => {
