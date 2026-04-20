@@ -1,7 +1,20 @@
 import User from "../models/User.js";
 import jwt from "jsonwebtoken";
+import {z} from 'zod';
+
+const LoginSchema = z.object({
+    email: z.string().email('Invalid email address'),
+    password: z.string().min(8, 'Password must be at least 8 characters long')
+});
 
 const LoginController = async (req, res) => {
+    const result = LoginSchema.safeParse(req.body);
+    
+    if (!result.success) {
+        const errors = result.error.errors.map(err => err.message);
+        return res.status(400).json({ message: 'Validation error', errors });
+    }
+
     const {email, password} = req.body;
 
     try {
