@@ -1,6 +1,8 @@
 import React from 'react';
 
 const Register = () => {
+
+    
     return (
         <div className="min-h-screen bg-white flex items-center justify-center p-4">
             <div className="max-w-md w-full space-y-8 border border-gray-100 p-8 md:p-12 shadow-sm rounded-2xl">
