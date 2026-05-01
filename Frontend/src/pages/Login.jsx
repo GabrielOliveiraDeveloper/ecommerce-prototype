@@ -11,9 +11,16 @@ const Login = () => {
         formState: { errors } 
     } = useForm();
 
-    const onSubmit = (data) => {
+    const onSubmit = async (data) => {
         console.log(data)
 
+        await axios.post('http://localhost:3000/auth/login', data)
+            .then(response => {
+                console.log('Login bem-sucedido:', response.data);
+            })
+            .catch(error => {
+                console.error('Erro ao fazer login:', error.response ? error.response.data : error.message);
+        });
         
     }
 

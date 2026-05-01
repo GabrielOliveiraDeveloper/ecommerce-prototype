@@ -1,8 +1,30 @@
 import React from 'react';
+import { useForm } from 'react-hook-form';
+import axios from 'axios';
 
 const Register = () => {
 
+    const { 
+        register, 
+        handleSubmit, 
+        watch,
+        formState: { errors } 
+    } = useForm();
     
+    const onSubmit = async (data) => {
+        console.log(data);
+
+        await axios.post('http://localhost:3000/auth/register', data)
+            .then(response => {
+                console.log('Registro bem-sucedido:', response.data);
+            })
+            .catch(error => {
+                console.error('Erro ao registrar:', error.response ? error.response.data : error.message);
+        });
+
+    }
+
+
     return (
         <div className="min-h-screen bg-white flex items-center justify-center p-4">
             <div className="max-w-md w-full space-y-8 border border-gray-100 p-8 md:p-12 shadow-sm rounded-2xl">
@@ -16,7 +38,7 @@ const Register = () => {
                 </div>
 
             
-                <form className="mt-8 space-y-5" onSubmit={(e) => e.preventDefault()}>
+                <form className="mt-8 space-y-5" onSubmit={handleSubmit(onSubmit)}>
                     <div className="space-y-4">
                         
                         <div>
@@ -30,6 +52,7 @@ const Register = () => {
                                 required
                                 className="appearance-none relative block w-full px-3 py-3 border border-gray-200 placeholder-gray-300 text-black rounded-lg focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-all duration-200 sm:text-sm"
                                 placeholder="Seu nome"
+                                {...register('name', { required: 'Nome é obrigatório' })}
                             />
                         </div>
 
@@ -45,6 +68,7 @@ const Register = () => {
                                 required
                                 className="appearance-none relative block w-full px-3 py-3 border border-gray-200 placeholder-gray-300 text-black rounded-lg focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-all duration-200 sm:text-sm"
                                 placeholder="nome@exemplo.com"
+                                {...register('email', { required: 'Email é obrigatório' })}
                             />
                         </div>
 
@@ -60,6 +84,7 @@ const Register = () => {
                                 required
                                 className="appearance-none relative block w-full px-3 py-3 border border-gray-200 placeholder-gray-300 text-black rounded-lg focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-all duration-200 sm:text-sm"
                                 placeholder="No mínimo 8 caracteres"
+                                {...register('password', { required: 'Senha é obrigatória' })}
                             />
                         </div>
                     </div>
@@ -72,6 +97,7 @@ const Register = () => {
                                 type="checkbox"
                                 required
                                 className="h-4 w-4 text-black focus:ring-black border-gray-300 rounded"
+                                {...register('terms', { required: 'Você deve concordar com os termos' })}
                             />
                         </div>
                         <div className="ml-3 text-xs">
