@@ -1,6 +1,7 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import axios from 'axios';
+import {useNavigate} from 'react-router-dom';
 
 const Register = () => {
 
@@ -10,6 +11,8 @@ const Register = () => {
         watch,
         formState: { errors } 
     } = useForm();
+
+    const navigate = useNavigate();
     
     const onSubmit = async (data) => {
         console.log(data);
@@ -17,11 +20,16 @@ const Register = () => {
         await axios.post('http://localhost:3000/auth/register', data)
             .then(response => {
                 console.log('Registro bem-sucedido:', response.data);
+                navigate('/login', {state: {message: 'Registro bem-sucedido! Faça login para continuar.'}});
             })
             .catch(error => {
                 console.error('Erro ao registrar:', error.response ? error.response.data : error.message);
         });
 
+    }
+
+    const redirectToLogin = () => {
+        navigate('/login');
     }
 
 
@@ -120,7 +128,7 @@ const Register = () => {
                 <div className="text-center mt-6">
                     <p className="text-sm text-gray-500">
                         Já possui uma conta?{' '}
-                        <a href="#" className="font-semibold text-black hover:underline underline-offset-4">
+                        <a href="#" className="font-semibold text-black hover:underline underline-offset-4" onClick={redirectToLogin}>
                             Fazer login
                         </a>
                     </p>

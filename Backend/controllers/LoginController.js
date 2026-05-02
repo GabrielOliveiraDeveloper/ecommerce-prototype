@@ -30,7 +30,7 @@ const LoginController = async (req, res) => {
 
         const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-        res.json({ token });
+        res.json({ userID: user._id, token });
     }
     catch (error) {
         console.error('Error logging in user:', error);

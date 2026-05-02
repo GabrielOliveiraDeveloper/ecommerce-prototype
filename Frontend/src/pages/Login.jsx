@@ -1,8 +1,11 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
+
+    const navigate = useNavigate();
 
     const { 
         register, 
@@ -17,6 +20,7 @@ const Login = () => {
         await axios.post('http://localhost:3000/auth/login', data)
             .then(response => {
                 console.log('Login bem-sucedido:', response.data);
+                navigate('/home', {state: {user: {userID: response.data.userID, token: response.data.token}}});
             })
             .catch(error => {
                 console.error('Erro ao fazer login:', error.response ? error.response.data : error.message);
@@ -24,6 +28,9 @@ const Login = () => {
         
     }
 
+    const redirectToRegister = () => {
+        navigate('/register');
+    }
     
     
     return (
@@ -95,7 +102,7 @@ const Login = () => {
                 <div className="text-center mt-6">
                     <p className="text-sm text-gray-500">
                         Não tem uma conta?{' '}
-                        <a href="#" className="font-semibold text-black hover:underline underline-offset-4">
+                        <a href="#" className="font-semibold text-black hover:underline underline-offset-4" onClick={redirectToRegister}>
                             Cadastre-se
                         </a>
                     </p>
