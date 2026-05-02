@@ -30,7 +30,6 @@ const RegisterShop = () => {
             .catch(error => {
                 console.error('Erro ao criar loja:', error.response ? error.response.data : error.message);
             });
-        
 
     };
 

@@ -20,7 +20,7 @@ const Login = () => {
         await axios.post('http://localhost:3000/auth/login', data)
             .then(response => {
                 console.log('Login bem-sucedido:', response.data);
-                navigate('/home', {state: {user: {userID: response.data.userID, token: response.data.token}}});
+                navigate('/', {state: {user: {userID: response.data.userID, token: response.data.token}}});
             })
             .catch(error => {
                 console.error('Erro ao fazer login:', error.response ? error.response.data : error.message);
