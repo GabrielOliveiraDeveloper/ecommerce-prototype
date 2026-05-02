@@ -1,9 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const Header = ({ user }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const settingsRef = useRef(null);
+    const navigate = useNavigate();
+
+    const redirectToRegisterShop = () => {
+        navigate('/register-shop', {state: {user: user}});
+    }
 
     const navItems = ['Início', 'Sobre', 'Contato'];
 
@@ -152,7 +158,7 @@ const Header = ({ user }) => {
 
                 {user && (
                     <div className="flex flex-col space-y-2 pt-2 border-t border-gray-100">
-                        <button className="text-left text-xs uppercase tracking-widest text-gray-500 font-semibold py-1">
+                        <button className="text-left text-xs uppercase tracking-widest text-gray-500 font-semibold py-1" onClick={redirectToRegisterShop()}>
                             Criar Loja
                         </button>
                         <button className="text-left text-xs uppercase tracking-widest text-red-400 font-semibold py-1">

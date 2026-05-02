@@ -1,9 +1,13 @@
 import { useForm } from 'react-hook-form';
 import axios from 'axios';
 import Header from "../components/Header";
+import { useLocation } from 'react-router-dom';
 
 const RegisterShop = () => {
+    const location = useLocation();
 
+    const user = location.state?.user;
+    
     const {
         register,
         handleSubmit,
@@ -12,19 +16,29 @@ const RegisterShop = () => {
 
     const onSubmit = async (data) => {
         console.log(data);
+        console.log(user);
 
-        await axios.post('http://localhost:3000/shop/register', data)
+        await axios.post('http://localhost:3000/api/shops', JSON.stringify({name: data.shopName, description: data.description, category: data.category, ownerID: user.userID}), {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${user.token}`
+            }
+        })
             .then(response => {
                 console.log('Loja criada com sucesso:', response.data);
             })
             .catch(error => {
                 console.error('Erro ao criar loja:', error.response ? error.response.data : error.message);
             });
+        
+
     };
 
     return (
         <div>
-            <Header />
+             <Header
+             user = {user}
+             />
 
             <div className="min-h-screen bg-white flex items-center justify-center p-4">
                 <div className="max-w-md w-full space-y-8 border border-gray-100 p-8 md:p-12 shadow-sm rounded-2xl">
