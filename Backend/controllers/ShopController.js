@@ -1,4 +1,5 @@
 import Shop from '../models/Shop.js';
+import Product from '../models/Product.js';
 
 const createShop = async (req, res) => {
     const { name, description, category, ownerID } = req.body;
@@ -102,19 +103,14 @@ const createProduct = async (req, res) => {
     const newProduct = {
         name,
         price,
-        description
+        description,
+        idShop: shopID
     };
 
     try {
-        const shop = await Shop.findById(shopID);
-        if (!shop) {
-            return res.status(404).json({ message: 'Shop not found' });
-        }
-
-        shop.products.push(newProduct);
-        await shop.save();
-
-        res.status(201).json(newProduct);
+        const product = new Product(newProduct);
+        const savedProduct = await product.save();
+        res.status(201).json(savedProduct);
     }
     catch (error) {
         console.error('Error creating product:', error);
@@ -127,11 +123,8 @@ const getProducts = async (req, res) => {
     const { shopID } = req.params;
 
     try {        
-        const shop = await Shop.findById(shopID);
-        if (!shop) {
-            return res.status(404).json({ message: 'Shop not found' });
-        }
-        res.json(shop.products);
+        const products = await Product.find({ idShop: shopID });
+        res.json(products);
     }
     catch (error) {
         console.error('Error fetching products:', error);
@@ -141,15 +134,10 @@ const getProducts = async (req, res) => {
 }
 
 const getProductById = async (req, res) => {
-    const { shopID, productID } = req.params;
+    const { productID } = req.params;
 
     try {
-        const shop = await Shop.findById(shopID);
-        if (!shop) {
-            return res.status(404).json({ message: 'Shop not found' });
-        }
-
-        const product = shop.products.id(productID);
+        const product = await Product.findById(productID);
         if (!product) {
             return res.status(404).json({ message: 'Product not found' });
         }
@@ -169,7 +157,7 @@ const updateProduct = async (req, res) => {
 
 const deleteProduct = async (req, res) => {
 
-}
+}   
 
 
 export {

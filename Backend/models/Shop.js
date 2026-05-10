@@ -18,11 +18,6 @@ const ShopSchema = new mongoose.Schema({
         ref: 'User',                        
         required: true                      
     },
-    products: [{
-        name: String,
-        price: Number,
-        description: String
-    }]
 }, { timestamps: true });
 
 const Shop = mongoose.model('Shop', ShopSchema);
