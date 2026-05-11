@@ -54,6 +54,21 @@ const getProductById = async (req, res) => {
 
 }
 
+const getProductsByShopId = async (req, res) => {
+    const { shopID } = req.params;
+
+    try {
+        const products = await Product.find({
+            idShop: shopID
+        });
+        res.json(products);
+    }
+    catch (error) {
+        console.error('Error fetching products:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
 const updateProduct = async (req, res) => {
 
 }
@@ -66,6 +81,7 @@ export {
     createProduct,
     getProducts,
     getProductById,
+    getProductsByShopId,
     updateProduct,
     deleteProduct
 }

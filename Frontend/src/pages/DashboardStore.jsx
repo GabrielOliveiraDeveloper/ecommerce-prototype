@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 
 const DashboardStore = () => {
     const location = useLocation();
+    const navigate = useNavigate();
 
     const state = location.state || null;
     const user = state?.user || null;
@@ -11,7 +12,7 @@ const DashboardStore = () => {
 
     const menuItems = [
         { title: "Edição de perfil da loja", description: "Gerencie informações e aparência." },
-        { title: "Produtos cadastrados", description: "Visualize e edite seu catálogo." },
+        { title: "Produtos cadastrados", description: "Visualize e edite seu catálogo.", onClick: () => navigate('/manage-products', { state: { user, shopID } }) },
         { title: "Mensagens", description: "Responda dúvidas de clientes." },
         { title: "Pedidos", description: "Acompanhe suas vendas e entregas." }
     ];
@@ -34,6 +35,7 @@ const DashboardStore = () => {
                     {menuItems.map((item, index) => (
                         <div 
                             key={index}
+                            onClick={item.onClick}
                             className="group p-6 border border-gray-100 rounded-2xl hover:border-black transition-all duration-300 cursor-pointer shadow-sm hover:shadow-md"
                         >
                             <h3 className="text-xs uppercase tracking-widest text-gray-400 font-semibold mb-2 group-hover:text-black transition-colors">

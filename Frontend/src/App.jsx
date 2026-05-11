@@ -5,9 +5,10 @@ import Home from './pages/Home.jsx';
 import RegisterShop from './pages/RegisterShop.jsx';
 import DashboardStore from './pages/DashboardStore.jsx';
 import ManageShops from './pages/ManageShops.jsx';
+import ManageProducts from './pages/ManageProducts.jsx';
 
 function App() {
-      return(
+      return (
 
             <BrowserRouter>
                 <Routes>
@@ -17,11 +18,10 @@ function App() {
                     <Route path="/register-shop" element={<RegisterShop/>}/>
                     <Route path="/dashboard-store" element={<DashboardStore/>}/>
                     <Route path="/manage-shops" element={<ManageShops/>}/>
+                    <Route path="/manage-products" element={<ManageProducts/>}/>
                 </Routes>
             </BrowserRouter>
-
       )
- 
 }
 
 export default App
