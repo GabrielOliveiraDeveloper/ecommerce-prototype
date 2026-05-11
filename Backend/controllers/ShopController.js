@@ -87,7 +87,7 @@ const getShopsIDByOwner = async (req, res) => {
     const { ownerID } = req.params;
 
     try {
-        const shops = await Shop.find({ owner: ownerID }, '_id');
+        const shops = await Shop.find({ owner: ownerID });
         res.json(shops);
     }
     catch (error) {
