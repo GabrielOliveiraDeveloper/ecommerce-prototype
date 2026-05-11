@@ -4,6 +4,7 @@ import Register from './pages/Register.jsx';
 import Home from './pages/Home.jsx';
 import RegisterShop from './pages/RegisterShop.jsx';
 import DashboardStore from './pages/DashboardStore.jsx';
+import ManageShops from './pages/ManageShops.jsx';
 
 function App() {
       return(
