@@ -16,7 +16,7 @@ const Header = ({ user }) => {
     const redirectToManageShops = () => {
         setIsSettingsOpen(false);
         setIsMenuOpen(false);
-        navigate('/manage-shops');
+        navigate('/manage-shops', { state: { user: user } });
     }
 
     const navItems = ['Início', 'Sobre', 'Contato'];

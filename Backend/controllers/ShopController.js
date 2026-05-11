@@ -105,4 +105,5 @@ export {
     getShopById,
     updateShop,
     deleteShop,
+    getShopsIDByOwner
 };

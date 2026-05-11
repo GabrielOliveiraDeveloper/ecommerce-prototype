@@ -7,6 +7,7 @@ const ShopRoutes = express.Router();
 ShopRoutes.post('/shops', authMiddleware, ShopController.createShop);
 ShopRoutes.get('/shops', authMiddleware, ShopController.getShops);
 ShopRoutes.get('/shops/:id', authMiddleware, ShopController.getShopById);
+ShopRoutes.get('/shops/owner/:ownerID', authMiddleware, ShopController.getShopsIDByOwner);
 ShopRoutes.put('/shops/:id', authMiddleware, ShopController.updateShop);
 ShopRoutes.delete('/shops/:id', authMiddleware, ShopController.deleteShop);
 
