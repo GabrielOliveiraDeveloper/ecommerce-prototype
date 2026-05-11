@@ -8,7 +8,15 @@ const Header = ({ user }) => {
     const navigate = useNavigate();
 
     const redirectToRegisterShop = () => {
-        navigate('/register-shop', {state: {user: user}});
+        setIsSettingsOpen(false);
+        setIsMenuOpen(false);
+        navigate('/register-shop', { state: { user: user } });
+    }
+
+    const redirectToManageShops = () => {
+        setIsSettingsOpen(false);
+        setIsMenuOpen(false);
+        navigate('/manage-shops');
     }
 
     const navItems = ['Início', 'Sobre', 'Contato'];
@@ -90,13 +98,20 @@ const Header = ({ user }) => {
                                 </button>
 
                                 {isSettingsOpen && (
-                                    <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-100 rounded-xl shadow-lg py-2 z-50">
+                                    <div className="absolute right-0 mt-2 w-56 bg-white border border-gray-100 rounded-xl shadow-lg py-2 z-50">
                                         <button
                                             className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-150"
-                                            onClick={() => setIsSettingsOpen(false)}
+                                            onClick={redirectToManageShops}
                                         >
-                                            Criar Loja
+                                            Gerenciar Lojas
                                         </button>
+                                        <button
+                                            className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-150"
+                                            onClick={redirectToRegisterShop}
+                                        >
+                                            Cadastrar Nova Loja
+                                        </button>
+                                        <div className="border-t border-gray-100 my-1"></div>
                                         <button
                                             className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-50 transition-colors duration-150"
                                             onClick={() => setIsSettingsOpen(false)}
@@ -129,6 +144,7 @@ const Header = ({ user }) => {
                 </div>
             </div>
 
+           
             <div className={`${isMenuOpen ? 'block' : 'hidden'} md:hidden bg-white border-t border-gray-100 px-6 py-4 space-y-4`}>
                 <div className="relative w-full">
                     <span className="absolute inset-y-0 left-0 flex items-center pl-3">
@@ -158,8 +174,17 @@ const Header = ({ user }) => {
 
                 {user && (
                     <div className="flex flex-col space-y-2 pt-2 border-t border-gray-100">
-                        <button className="text-left text-xs uppercase tracking-widest text-gray-500 font-semibold py-1" onClick={redirectToRegisterShop()}>
-                            Criar Loja
+                        <button 
+                            className="text-left text-xs uppercase tracking-widest text-gray-500 font-semibold py-1" 
+                            onClick={redirectToManageShops}
+                        >
+                            Gerenciar Lojas
+                        </button>
+                        <button 
+                            className="text-left text-xs uppercase tracking-widest text-gray-500 font-semibold py-1" 
+                            onClick={redirectToRegisterShop}
+                        >
+                            Cadastrar Nova Loja
                         </button>
                         <button className="text-left text-xs uppercase tracking-widest text-red-400 font-semibold py-1">
                             Desconectar Conta
