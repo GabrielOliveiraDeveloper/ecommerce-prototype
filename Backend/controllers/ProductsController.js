@@ -1,4 +1,7 @@
 import Product from '../models/Product.js'; 
+import FormData from 'form-data';
+import axios from 'axios';
+const IMGBB_API_KEY = process.env.IMGBB_API_KEY;
 
 const createProduct = async (req, res) => {
     const { name, price, description, shopID } = req.body;
