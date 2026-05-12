@@ -1,5 +1,7 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
+import Header from "../components/Header";
+import ProductForm from "../components/ProductForm";
 import axios from "axios";
 
 const ManageProducts = () => {
@@ -7,30 +9,97 @@ const ManageProducts = () => {
     const user = location.state?.user;
     const shopID = location.state?.shopID;
     
-    useEffect(() => {
-        const fetchProducts = async () => {
-            try {
-                const response = await axios.get(`http://localhost:3000/api/products/shop/${shopID}`, {
-                    headers: {
-                        'Authorization': `Bearer ${user.token}`
-                    }
-                });
-                console.log('Products fetched successfully:', response.data);
-            } catch (error) {
-                console.error('Error fetching products:', error);
-            }
-        };
+    const [products, setProducts] = useState([]);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [loading, setLoading] = useState(true);
 
+    const fetchProducts = async () => {
+        try {
+            const response = await axios.get(`http://localhost:3000/api/products/shop/${shopID}`, {
+                headers: { 'Authorization': `Bearer ${user.token}` }
+            });
+            setProducts(response.data);
+        } catch (error) {
+            console.error('Error fetching products:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
         if (user && shopID) {
             fetchProducts();
         }
     }, [user, shopID]);
 
     return (
-        <div>
+        <div className="min-h-screen bg-white">
+            <Header user={user} />
+            
+            <main className="max-w-7xl mx-auto px-4 py-12 md:px-8">
+                <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
+                    <div>
+                        <h1 className="text-3xl font-light tracking-tight text-black">
+                            Produtos da Loja
+                        </h1>
+                        <p className="mt-2 text-sm text-gray-500 font-light">
+                            Visualize e gerencie o estoque da sua unidade.
+                        </p>
+                    </div>
+                    <button
+                        onClick={() => setIsModalOpen(true)}
+                        className="px-6 py-2 bg-black text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-all duration-300 active:scale-95"
+                    >
+                        + Adicionar novo produto
+                    </button>
+                </div>
 
+                {loading ? (
+                    <div className="flex justify-center py-20">
+                        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-black"></div>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 gap-4">
+                        {products.map((product) => (
+                            <div key={product._id} className="group p-6 border border-gray-100 rounded-2xl hover:border-black transition-all duration-300 flex justify-between items-center shadow-sm">
+                                <div>
+                                    <h3 className="text-sm uppercase tracking-widest text-gray-400 font-semibold mb-1 group-hover:text-black transition-colors">
+                                        {product.name}
+                                    </h3>
+                                    <p className="text-lg font-light text-black">R$ {product.price}</p>
+                                    <p className="text-xs text-gray-500 font-light mt-1">{product.description}</p>
+                                </div>
+                                <div className="flex gap-4">
+                                    <button className="text-gray-400 hover:text-black transition-colors">
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                                    </button>
+                                    <button className="text-gray-400 hover:text-red-500 transition-colors">
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </main>
+
+            {isModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-transparent">
+                    <div className="max-w-md w-full bg-white border border-gray-200 p-8 md:p-12 shadow-2xl rounded-3xl transform transition-all border-opacity-50">
+                        <ProductForm 
+                            shopID={shopID} 
+                            user={user} 
+                            onClose={() => setIsModalOpen(false)} 
+                            onSuccess={() => {
+                                setIsModalOpen(false);
+                                fetchProducts();
+                            }} 
+                        />
+                    </div>
+                </div>
+            )}
         </div>
-    )
+    );
 }
 
 export default ManageProducts;

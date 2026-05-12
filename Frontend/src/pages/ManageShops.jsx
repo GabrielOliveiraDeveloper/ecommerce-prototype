@@ -2,6 +2,7 @@ import axios from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import Header from '../components/Header';
+import ProductForm from '../components/ProductForm';
 
 const ManageShops = () => {
     const location = useLocation();
