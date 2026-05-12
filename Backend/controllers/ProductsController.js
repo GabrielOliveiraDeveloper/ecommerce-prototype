@@ -6,6 +6,24 @@ const IMGBB_API_KEY = process.env.IMGBB_API_KEY;
 const createProduct = async (req, res) => {
     const { name, price, description, shopID } = req.body;
 
+    if (!req.file) {
+            return res.status(400).send('Nenhum arquivo enviado.');
+    }
+
+    const form = new FormData();
+    form.append('image', req.file.buffer.toString('base64'));
+
+    const response = await axios.post(
+        `https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`,
+        form,
+        { headers: { ...form.getHeaders() } }
+    );
+
+    const imageUrl = response.data.data.url;
+    const deleteUrl = response.data.data.delete_url; 
+        
+    console.log('URL da Imagem:', imageUrl);
+
     const newProduct = {
         name,
         price,
