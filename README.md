@@ -8,18 +8,30 @@ Um protótipo completo de plataforma de e-commerce com autenticação de usuári
 
 ## 📋 Índice
 
-- [Visão Geral](#visão-geral)
-- [Tecnologias](#tecnologias)
-- [Pré-requisitos](#pré-requisitos)
-- [Instalação](#instalação)
-- [Configuração](#configuração)
-- [Estrutura do Projeto](#estrutura-do-projeto)
-- [API Reference](#api-reference)
-- [Rotas Frontend](#rotas-frontend)
-- [Autenticação](#autenticação)
-- [Roadmap](#roadmap)
-- [Contribuindo](#contribuindo)
-- [Licença](#licença)
+- [Visão Geral](#-visão-geral)
+- [Tecnologias](#-tecnologias)
+- [Pré-requisitos](#-pré-requisitos)
+- [Instalação](#-instalação)
+- [Configuração](#️-configuração)
+- [Estrutura do Projeto](#-estrutura-do-projeto)
+- [API Reference](#-api-reference)
+- [Autenticação](#-autenticação)
+- [Lojas (Shops)](#-lojas-shops)
+- [Produtos](#-produtos)
+- [Iniciando o Projeto](#-iniciando-o-projeto)
+- [Rotas Frontend](#-rotas-frontend)
+- [Testes Automatizados](#-testes-automatizados)
+- [Autenticação & Segurança](#-autenticação--segurança)
+- [Roadmap](#-roadmap)
+- [Issues Conhecidas](#-conhecidos-issues)
+- [Melhorias Planejadas](#-melhorias-planejadas)
+- [Contribuindo](#-contribuindo)
+- [Documentação Adicional](#-documentação-adicional)
+- [Links Úteis](#-links-úteis)
+- [Suporte](#-suporte)
+- [Licença](#-licença)
+- [Autor](#️-autor)
+- [Agradecimentos](#-agradecimentos)
 
 ---
 
@@ -32,6 +44,7 @@ Um protótipo completo de plataforma de e-commerce com autenticação de usuári
 - ✅ Catálogo de produtos com preços e descrições
 - ✅ Dashboard intuitivo para vendedores
 - ✅ Navegação responsiva (mobile-first design)
+- ✅ Testes automatizados para Controllers
 
 ### Fluxo Principal
 
@@ -61,6 +74,10 @@ Usuário → Registro/Login → Dashboard → Criar Loja → Adicionar Produtos
 - **Multer** - Upload de arquivos
 - **Zod** - Validação de dados
 - **CORS** - Controle de acesso
+
+### Testes
+- **Jest** - Framework de testes
+- **Supertest** - Testes de HTTP
 
 ---
 
@@ -128,6 +145,9 @@ IMGBB_API_KEY=sua_chave_api_imgbb_aqui
 
 # Server Port (opcional)
 PORT=3000
+
+# Node Environment
+NODE_ENV=development
 ```
 
 #### Gerar JWT_SECRET Seguro
@@ -170,6 +190,12 @@ VITE_API_URL=http://localhost:3000
 ecommerce-prototype/
 │
 ├── backend/
+│   ├── __tests__/
+│   │   └── controllers/
+│   │       ├── LoginController.spec.js
+│   │       ├── RegisterController.spec.js
+│   │       ├── ShopController.spec.js
+│   │       └── ProductsController.spec.js
 │   ├── controllers/
 │   │   ├── LoginController.js
 │   │   ├── RegisterController.js
@@ -189,6 +215,7 @@ ecommerce-prototype/
 │   │   └── ConnectToDB.js
 │   ├── index.js
 │   ├── package.json
+│   ├── jest.config.js
 │   └── .env
 │
 ├── frontend/
@@ -640,6 +667,175 @@ http://localhost:5173
 
 ---
 
+## 🧪 Testes Automatizados
+
+### Visão Geral dos Testes
+
+O projeto inclui uma suite completa de testes unitários para os controllers utilizando **Jest**. Os testes cobrem:
+
+- ✅ **LoginController** - Autenticação de usuários
+- ✅ **RegisterController** - Registro de novos usuários
+- ✅ **ShopController** - Gerenciamento de lojas
+- ✅ **ProductsController** - Gerenciamento de produtos
+
+### Estrutura dos Testes
+
+```
+backend/
+├── __tests__/
+│   └── controllers/
+│       ├── LoginController.spec.js
+│       ├── RegisterController.spec.js
+│       ├── ShopController.spec.js
+│       └── ProductsController.spec.js
+```
+
+### Executar os Testes
+
+#### Executar todos os testes
+```bash
+cd backend
+npm test
+```
+
+#### Executar com cobertura
+```bash
+npm test -- --coverage
+```
+
+#### Executar um arquivo de teste específico
+```bash
+npm test LoginController.spec.js
+```
+
+#### Executar em modo watch (reexecuta ao detectar mudanças)
+```bash
+npm test -- --watch
+```
+
+### Detalhes dos Testes
+
+#### **LoginController.spec.js**
+Testa a autenticação de usuários:
+
+- ✅ Login bem-sucedido com email e senha válidos
+- ✅ Retorna erro 400 se usuário não existe
+- ✅ Retorna erro 400 se senha está incorreta
+- ✅ Valida geração correta do JWT token
+- ✅ Retorna userID e token na resposta
+
+**Casos de teste:**
+```javascript
+✓ should log in a user successfully
+✓ should return 400 if user does not exist
+✓ should return 400 if password is incorrect
+```
+
+---
+
+#### **RegisterController.spec.js**
+Testa o registro de novos usuários:
+
+- ✅ Registra novo usuário com sucesso
+- ✅ Retorna erro 400 se usuário já existe
+- ✅ Valida campos obrigatórios (name, email, password)
+- ✅ Retorna mensagem de sucesso (201)
+
+**Casos de teste:**
+```javascript
+✓ should register a new user successfully
+✓ should return an error if user already exists
+```
+
+---
+
+#### **ShopController.spec.js**
+Testa o gerenciamento de lojas:
+
+- ✅ Criar loja com sucesso
+- ✅ Listar todas as lojas com populate do owner
+- ✅ Obter loja específica por ID
+- ✅ Atualizar informações da loja
+- ✅ Deletar loja
+- ✅ Listar lojas de um proprietário específico
+- ✅ Retorna erro 404 se loja não encontrada
+- ✅ Retorna erro 500 em caso de erro no banco
+
+**Casos de teste:**
+```javascript
+✓ deve criar uma loja com sucesso
+✓ deve retornar 500 em caso de erro no banco
+✓ deve listar todas as lojas com populate
+✓ deve retornar uma loja específica
+✓ deve retornar 404 se a loja não existir
+✓ deve atualizar a loja com sucesso
+✓ deve deletar a loja com sucesso
+✓ deve retornar lojas de um dono específico
+```
+
+---
+
+#### **ProductsController.spec.js**
+Testa o gerenciamento de produtos:
+
+- ✅ Criar produto com upload de imagem
+- ✅ Retorna erro 400 se nenhum arquivo foi enviado
+- ✅ Retorna erro 500 em caso de erro no banco
+- ✅ Buscar produtos por shopID
+- ✅ Obter produto específico por ID
+- ✅ Retorna erro 404 se produto não encontrado
+- ✅ Listar produtos de uma loja específica
+
+**Casos de teste:**
+```javascript
+✓ deve criar um produto com upload de imagem
+✓ deve retornar 400 se nenhum arquivo for enviado
+✓ deve retornar 500 em caso de erro no salvamento do banco
+✓ deve falhar se o Axios falhar
+✓ deve buscar produtos por shopID
+✓ deve retornar um produto pelo ID
+✓ deve retornar 404 se o produto não for encontrado
+✓ deve listar produtos da loja
+```
+
+### Configuração do Jest
+
+O arquivo `jest.config.js` no backend deve conter:
+
+```javascript
+module.exports = {
+  testEnvironment: 'node',
+  testMatch: ['**/__tests__/**/*.spec.js'],
+  collectCoverageFrom: [
+    'controllers/**/*.js',
+    '!node_modules/**'
+  ],
+  coveragePathIgnorePatterns: ['/node_modules/'],
+  verbose: true
+};
+```
+
+### Mock de Dependências
+
+Os testes utilizam mocks do Jest para isolar os controllers:
+
+```javascript
+jest.mock('../../models/User');
+jest.mock('jsonwebtoken');
+jest.mock('../../models/Product.js');
+jest.mock('axios');
+```
+
+### Boas Práticas nos Testes
+
+- ✅ Cada teste é independente (usa `beforeEach` para limpar)
+- ✅ Mocks são resetados entre testes (`jest.clearAllMocks()`)
+- ✅ Testes cobrem casos de sucesso e erro
+- ✅ Nomes descritivos dos testes (português)
+- ✅ Assertions claras e específicas
+
+---
+
 ## 🔒 Autenticação & Segurança
 
 ### Como Funciona
@@ -674,21 +870,21 @@ Authorization: Bearer {token}
 - [x] Gerenciamento de lojas
 - [x] Catálogo de produtos básico
 - [x] Dashboard para vendedores
-- [ ] Testes automatizados
+- [x] Testes automatizados (Controllers)
 
 ### Fase 2 - Melhorias
+- [ ] Testes E2E com Cypress
+- [ ] Testes de integração
 - [ ] Upload de imagens para produtos
 - [ ] Avaliações e comentários
 - [ ] Carrinho de compras
-- [ ] Checkout e pagamento
-- [ ] Notificações por email
 
 ### Fase 3 - Expansão
+- [ ] Checkout e pagamento
 - [ ] Pedidos e rastreamento
 - [ ] Sistema de mensagens
 - [ ] Relatórios e analytics
 - [ ] App mobile (React Native)
-- [ ] Marketplace multi-vendor
 
 ### Fase 4 - Produção
 - [ ] Deploy em servidor de produção
@@ -718,7 +914,8 @@ Authorization: Bearer {token}
 [ ] Validação robusta de formulários
 [ ] Tratamento de erros melhorado
 [ ] Persistência de sessão
-[ ] Testes unitários e E2E
+[ ] Testes E2E com Cypress
+[ ] Testes de integração
 [ ] Documentação de API com Swagger
 [ ] Performance optimization
 ```
@@ -741,6 +938,7 @@ Contribuições são bem-vindas! Para começar:
 - Siga convenções de nomenclatura camelCase
 - Adicione comentários para código complexo
 - Teste suas mudanças antes de submeter
+- Mantenha a cobertura de testes acima de 80%
 
 ---
 
@@ -794,8 +992,11 @@ Contribuições são bem-vindas! Para começar:
 - [Documentação Express](https://expressjs.com/)
 - [Documentação Mongoose](https://mongoosejs.com/)
 - [Documentação React](https://react.dev/)
+- [Jest Testing Framework](https://jestjs.io/)
 - [JWT.io](https://jwt.io/)
 - [Tailwind CSS](https://tailwindcss.com/)
+- [MongoDB Documentation](https://docs.mongodb.com/)
+- [Vite Guide](https://vitejs.dev/)
 
 ---
 
@@ -829,6 +1030,7 @@ Este projeto está sob a licença **ISC**. Veja [LICENSE](LICENSE) para detalhes
 - [Vercel](https://vercel.com/) - Deploy recomendado
 - [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) - Banco de dados
 - [ImgBB](https://imgbb.com/) - Hospedagem de imagens
+- [Jest](https://jestjs.io/) - Framework de testes
 
 ---
 
@@ -838,6 +1040,6 @@ Este projeto está sob a licença **ISC**. Veja [LICENSE](LICENSE) para detalhes
 
 Feito com ❤️ em desenvolvimento
 
-v1.0.0 - 2026
+v2.0.0 - 2026
 
 </div>
