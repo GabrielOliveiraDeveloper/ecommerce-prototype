@@ -1,21 +1,34 @@
 import { useForm } from 'react-hook-form';
 import axios from 'axios';
+import { useState } from 'react';
 
 const ProductForm = ({ shopID, user, onClose, onSuccess }) => {
     const { register, handleSubmit, formState: { errors } } = useForm();
+    const [selectedImages, setSelectedImages] = useState([]);
+
+    const handleImageChange = (e) => {
+        if (e.target.files) {
+            const filesArray = Array.from(e.target.files).slice(0, 5);
+            setSelectedImages(filesArray);
+        }
+    };
 
     const onSubmit = async (data) => {
         try {
-            const payload = {
-                name: data.name,
-                price: Number(data.price),
-                description: data.description,
-                shopID: shopID
-            };
+            const formData = new FormData();
+            formData.append('name', data.name);
+            formData.append('price', Number(data.price));
+            formData.append('description', data.description);
+            formData.append('shopID', shopID);
 
-            await axios.post('http://localhost:3000/api/products', payload, {
+            selectedImages.forEach((image) => {
+                formData.append('images', image);
+            });
+
+            await axios.post('http://localhost:3000/api/products', formData, {
                 headers: {
-                    'Authorization': `Bearer ${user.token}`
+                    'Authorization': `Bearer ${user.token}`,
+                    'Content-Type': 'multipart/form-data'
                 }
             });
             onSuccess();
@@ -59,6 +72,24 @@ const ProductForm = ({ shopID, user, onClose, onSuccess }) => {
                             className="appearance-none block w-full px-3 py-3 border border-gray-200 placeholder-gray-300 text-black rounded-lg focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-all sm:text-sm"
                             placeholder="0,00"
                         />
+                    </div>
+
+                    <div>
+                        <label className="block text-xs uppercase tracking-widest text-gray-400 font-semibold mb-1">
+                            Imagens (Máx. 5)
+                        </label>
+                        <input
+                            type="file"
+                            multiple
+                            accept="image/*"
+                            onChange={handleImageChange}
+                            className="appearance-none block w-full px-3 py-3 border border-gray-200 text-gray-500 rounded-lg focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-all sm:text-sm file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-black file:text-white hover:file:bg-gray-800"
+                        />
+                        {selectedImages.length > 0 && (
+                            <p className="mt-1 text-[10px] text-gray-400 uppercase">
+                                {selectedImages.length} arquivo(s) selecionado(s)
+                            </p>
+                        )}
                     </div>
 
                     <div>

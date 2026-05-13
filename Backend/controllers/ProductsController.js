@@ -6,42 +6,41 @@ const IMGBB_API_KEY = process.env.IMGBB_API_KEY;
 const createProduct = async (req, res) => {
     const { name, price, description, shopID } = req.body;
 
-    if (!req.file) {
-            return res.status(400).send('Nenhum arquivo enviado.');
+    if (!req.files || req.files.length === 0) {
+        return res.status(400).json({ message: 'No files uploaded.' });
     }
-
-    const form = new FormData();
-    form.append('image', req.file.buffer.toString('base64'));
-
-    const response = await axios.post(
-        `https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`,
-        form,
-        { headers: { ...form.getHeaders() } }
-    );
-
-    const imageUrl = response.data.data.url;
-    const deleteUrl = response.data.data.delete_url; 
-        
-    console.log('URL da Imagem:', imageUrl);
-
-    const newProduct = {
-        name,
-        price,
-        description,
-        idShop: shopID
-    };
 
     try {
-        const product = new Product(newProduct);
+        const uploadPromises = req.files.map(async (file) => {
+            const form = new FormData();
+            form.append('image', file.buffer.toString('base64'));
+
+            const response = await axios.post(
+                `https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`,
+                form,
+                { headers: { ...form.getHeaders() } }
+            );
+
+            return response.data.data.url;
+        });
+
+        const imageUrls = await Promise.all(uploadPromises);
+
+        const product = new Product({
+            name,
+            price,
+            description,
+            idShop: shopID,
+            imagesUrls: imageUrls
+        });
+
         const savedProduct = await product.save();
         res.status(201).json(savedProduct);
-    }
-    catch (error) {
+    } catch (error) {
         console.error('Error creating product:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
-
-}
+};
 
 const getProducts = async (req, res) => {
     const { shopID } = req.params;
