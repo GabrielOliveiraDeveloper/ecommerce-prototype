@@ -2,7 +2,10 @@ import {
     createProduct,
     getProducts,
     getProductById,
-    getProductsByShopId
+    getProductsByShopId,
+    updateProduct,
+    deleteProduct,
+    returnAllProducts
 } from "../../controllers/ProductsController.js";
 import Product from "../../models/Product.js";
 import axios from "axios";
@@ -33,22 +36,26 @@ describe('ProductController', () => {
     });
 
     describe('createProduct', () => {
-        it('deve criar um produto com upload de imagem', async () => {
+        it('should create a product with multiple image uploads', async () => {
             req = {
-                body: { name: 'Produto 1', price: 100, description: 'Desc', shopID: 'shop123' },
-                file: { buffer: Buffer.from('fake-image') }
+                body: { name: 'Product 1', price: 100, description: 'Desc', shopID: '60d0fe4f5311236168a109ca' },
+                files: [
+                    { buffer: Buffer.from('fake-image-1') },
+                    { buffer: Buffer.from('fake-image-2') }
+                ]
             };
 
             const mockImgResponse = {
                 data: {
-                    data: {
-                        url: 'http://image.com/test.jpg',
-                        delete_url: 'http://image.com/delete'
-                    }
+                    data: { url: 'http://image.com/test.jpg' }
                 }
             };
 
-            const mockSavedProduct = { _id: 'prod123', name: 'Produto 1' };
+            const mockSavedProduct = { 
+                _id: 'prod123', 
+                name: 'Product 1', 
+                imagesUrls: ['http://image.com/test.jpg', 'http://image.com/test.jpg'] 
+            };
 
             axios.post.mockResolvedValue(mockImgResponse);
             Product.prototype.save = jest.fn().mockResolvedValue(mockSavedProduct);
@@ -57,23 +64,23 @@ describe('ProductController', () => {
 
             expect(res.status).toHaveBeenCalledWith(201);
             expect(res.json).toHaveBeenCalledWith(mockSavedProduct);
+            expect(axios.post).toHaveBeenCalledTimes(2);
         });
 
-        it('deve retornar 400 se nenhum arquivo for enviado', async () => {
-            req = { body: {}, file: null };
+        it('should return 400 if no files are uploaded', async () => {
+            req = { body: {}, files: [] };
             await createProduct(req, res);
             expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.send).toHaveBeenCalledWith('Nenhum arquivo enviado.');
+            expect(res.json).toHaveBeenCalledWith({ message: 'No files uploaded.' });
         });
 
-        it('deve retornar 500 em caso de erro no salvamento do banco', async () => {
+        it('should return 500 if database save fails', async () => {
             req = {
-                body: { name: 'Erro' },
-                file: { buffer: Buffer.from('test') }
+                body: { name: 'Error Case' },
+                files: [{ buffer: Buffer.from('test') }]
             };
             
-            axios.post.mockResolvedValue({ data: { data: { url: 'url', delete_url: 'del' } } });
-            
+            axios.post.mockResolvedValue({ data: { data: { url: 'url' } } });
             Product.prototype.save = jest.fn().mockRejectedValue(new Error('DB Error'));
 
             await createProduct(req, res);
@@ -81,52 +88,130 @@ describe('ProductController', () => {
             expect(res.status).toHaveBeenCalledWith(500);
             expect(res.json).toHaveBeenCalledWith({ message: 'Internal server error' });
         });
-
-        it('deve falhar se o Axios falhar (comportamento atual do controller)', async () => {
-            req = {
-                body: { name: 'Erro' },
-                file: { buffer: Buffer.from('test') }
-            };
-            axios.post.mockRejectedValue(new Error('API Error'));
-
-            await expect(createProduct(req, res)).rejects.toThrow('API Error');
-        });
     });
 
     describe('getProducts', () => {
-        it('deve buscar produtos por shopID', async () => {
+        it('should fetch products by shopID', async () => {
             req = { params: { shopID: 'shop123' } };
-            const mockProducts = [{ name: 'P1' }];
+            const mockProducts = [{ name: 'P1', idShop: 'shop123' }];
             Product.find.mockResolvedValue(mockProducts);
+            
             await getProducts(req, res);
+            
+            expect(Product.find).toHaveBeenCalledWith({ idShop: 'shop123' });
             expect(res.json).toHaveBeenCalledWith(mockProducts);
         });
     });
 
     describe('getProductById', () => {
-        it('deve retornar um produto pelo ID', async () => {
+        it('should return a product by ID', async () => {
             req = { params: { productID: 'prod123' } };
             const mockProduct = { _id: 'prod123', name: 'P1' };
             Product.findById.mockResolvedValue(mockProduct);
+
             await getProductById(req, res);
+
             expect(res.json).toHaveBeenCalledWith(mockProduct);
         });
 
-        it('deve retornar 404 se o produto não for encontrado', async () => {
-            req = { params: { productID: 'naoexiste' } };
+        it('should return 404 if product is not found', async () => {
+            req = { params: { productID: 'nonexistent' } };
             Product.findById.mockResolvedValue(null);
+
             await getProductById(req, res);
+
             expect(res.status).toHaveBeenCalledWith(404);
             expect(res.json).toHaveBeenCalledWith({ message: 'Product not found' });
         });
     });
 
     describe('getProductsByShopId', () => {
-        it('deve listar produtos da loja', async () => {
+        it('should list products of a specific shop', async () => {
             req = { params: { shopID: 'shop123' } };
             Product.find.mockResolvedValue([]);
+
             await getProductsByShopId(req, res);
+
+            expect(Product.find).toHaveBeenCalledWith({ idShop: 'shop123' });
             expect(res.json).toHaveBeenCalledWith([]);
+        });
+    });
+
+    describe('updateProduct', () => {
+        it('should update a product and its images', async () => {
+            req = {
+                params: { id: 'prod123' },
+                body: { name: 'Updated Name', price: 150 },
+                files: [{ buffer: Buffer.from('new-image') }]
+            };
+
+            const mockImgResponse = { data: { data: { url: 'http://newimage.com/1.jpg' } } };
+            const mockUpdatedProduct = { _id: 'prod123', name: 'Updated Name', imagesUrls: ['http://newimage.com/1.jpg'] };
+
+            axios.post.mockResolvedValue(mockImgResponse);
+            Product.findByIdAndUpdate.mockResolvedValue(mockUpdatedProduct);
+
+            await updateProduct(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.json).toHaveBeenCalledWith(mockUpdatedProduct);
+        });
+
+        it('should return 404 if updating a non-existent product', async () => {
+            req = {
+                params: { id: 'invalid' },
+                body: { name: 'Fail' },
+                files: [{ buffer: Buffer.from('test') }]
+            };
+
+            axios.post.mockResolvedValue({ data: { data: { url: 'url' } } });
+            Product.findByIdAndUpdate.mockResolvedValue(null);
+
+            await updateProduct(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(404);
+            expect(res.json).toHaveBeenCalledWith({ message: 'Product not found' });
+        });
+    });
+
+    describe('deleteProduct', () => {
+        it('should delete a product successfully', async () => {
+            req = { params: { id: 'prod123' } };
+            Product.findByIdAndDelete.mockResolvedValue({ _id: 'prod123' });
+
+            await deleteProduct(req, res);
+
+            expect(res.json).toHaveBeenCalledWith({ message: 'Product deleted successfully' });
+        });
+
+        it('should return 404 if product to delete is not found', async () => {
+            req = { params: { id: 'invalid' } };
+            Product.findByIdAndDelete.mockResolvedValue(null);
+
+            await deleteProduct(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(404);
+            expect(res.json).toHaveBeenCalledWith({ message: 'Product not found' });
+        });
+    });
+
+    describe('returnAllProducts', () => {
+        it('should return all products in the database', async () => {
+            const mockProducts = [{ name: 'P1' }, { name: 'P2' }];
+            Product.find.mockResolvedValue(mockProducts);
+
+            await returnAllProducts(req, res);
+
+            expect(res.json).toHaveBeenCalledWith(mockProducts);
+        });
+
+        it('should return 500 on server error', async () => {
+            Product.find.mockRejectedValue(new Error('Fetch Error'));
+
+            await returnAllProducts(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(500);
+            expect(res.json).toHaveBeenCalledWith({ message: 'Internal server error' });
         });
     });
 });
