@@ -13,11 +13,16 @@ const ShopSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    pixKey: {
+        type: String,
+        required: true
+    },
     owner: {
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'User',                        
         required: true                      
     },
+
 }, { timestamps: true });
 
 const Shop = mongoose.model('Shop', ShopSchema);
