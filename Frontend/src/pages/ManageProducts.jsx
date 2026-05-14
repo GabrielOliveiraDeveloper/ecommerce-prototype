@@ -4,7 +4,7 @@ import Header from "../components/Header";
 import ProductForm from "../components/ProductForm";
 import axios from "axios";
 
-const ProductCard = ({ product, onDelete }) => {
+const ProductCard = ({ product, onDelete, onEdit }) => {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const images = product.imagesUrls || [];
 
@@ -66,7 +66,10 @@ const ProductCard = ({ product, onDelete }) => {
             </div>
 
             <div className="flex gap-4">
-                <button className="text-gray-400 hover:text-black transition-colors">
+                <button 
+                    onClick={() => onEdit(product)}
+                    className="text-gray-400 hover:text-black transition-colors"
+                >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                 </button>
                 <button 
@@ -88,6 +91,7 @@ const ManageProducts = () => {
     const [products, setProducts] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [productToEdit, setProductToEdit] = useState(null);
 
     const fetchProducts = async () => {
         try {
@@ -111,9 +115,18 @@ const ManageProducts = () => {
                 fetchProducts();
             } catch (error) {
                 console.error('Error deleting product:', error);
-                alert("Erro ao excluir produto.");
             }
         }
+    };
+
+    const handleEditClick = (product) => {
+        setProductToEdit(product);
+        setIsModalOpen(true);
+    };
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setProductToEdit(null);
     };
 
     useEffect(() => {
@@ -154,7 +167,8 @@ const ManageProducts = () => {
                             <ProductCard 
                                 key={product._id} 
                                 product={product} 
-                                onDelete={handleDeleteProduct} 
+                                onDelete={handleDeleteProduct}
+                                onEdit={handleEditClick}
                             />
                         ))}
                     </div>
@@ -167,9 +181,10 @@ const ManageProducts = () => {
                         <ProductForm 
                             shopID={shopID} 
                             user={user} 
-                            onClose={() => setIsModalOpen(false)} 
+                            productToEdit={productToEdit}
+                            onClose={handleCloseModal} 
                             onSuccess={() => {
-                                setIsModalOpen(false);
+                                handleCloseModal();
                                 fetchProducts();
                             }} 
                         />

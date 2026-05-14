@@ -1,26 +1,42 @@
 import { useForm } from 'react-hook-form';
 import axios from 'axios';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
-const ProductForm = ({ shopID, user, onClose, onSuccess }) => {
-    const { register, handleSubmit, formState: { errors } } = useForm();
+const ProductForm = ({ shopID, user, onClose, onSuccess, productToEdit = null }) => {
+    const isEditing = !!productToEdit;
+    const { register, handleSubmit, setValue, formState: { errors } } = useForm();
     const [selectedImages, setSelectedImages] = useState([]);
     const [previews, setPreviews] = useState([]);
+
+    useEffect(() => {
+        if (isEditing) {
+            setValue('name', productToEdit.name);
+            setValue('price', productToEdit.price);
+            setValue('description', productToEdit.description);
+            
+            if (productToEdit.imagesUrls) {
+                setPreviews(productToEdit.imagesUrls);
+            }
+        }
+    }, [isEditing, productToEdit, setValue]);
 
     const handleImageChange = (e) => {
         if (e.target.files) {
             const filesArray = Array.from(e.target.files);
-            const validFiles = filesArray.slice(0, 5 - selectedImages.length);
+            const currentTotal = isEditing ? selectedImages.length : selectedImages.length;
+            const validFiles = filesArray.slice(0, 5 - currentTotal);
             
             const newPreviews = validFiles.map(file => URL.createObjectURL(file));
             
             setSelectedImages(prev => [...prev, ...validFiles]);
-            setPreviews(prev => [...prev, ...newPreviews]);
+            setPreviews(prev => isEditing ? [...newPreviews] : [...prev, ...newPreviews]);
         }
     };
 
     const removeImage = (index) => {
-        URL.revokeObjectURL(previews[index]);
+        if (previews[index].startsWith('blob:')) {
+            URL.revokeObjectURL(previews[index]);
+        }
         setSelectedImages(prev => prev.filter((_, i) => i !== index));
         setPreviews(prev => prev.filter((_, i) => i !== index));
     };
@@ -37,15 +53,24 @@ const ProductForm = ({ shopID, user, onClose, onSuccess }) => {
                 formData.append('images', image);
             });
 
-            await axios.post('http://localhost:3000/api/products', formData, {
-                headers: {
-                    'Authorization': `Bearer ${user.token}`,
-                    'Content-Type': 'multipart/form-data'
-                }
-            });
+            if (isEditing) {
+                await axios.put(`http://localhost:3000/api/products/${productToEdit._id}`, formData, {
+                    headers: {
+                        'Authorization': `Bearer ${user.token}`,
+                        'Content-Type': 'multipart/form-data'
+                    }
+                });
+            } else {
+                await axios.post('http://localhost:3000/api/products', formData, {
+                    headers: {
+                        'Authorization': `Bearer ${user.token}`,
+                        'Content-Type': 'multipart/form-data'
+                    }
+                });
+            }
             onSuccess();
         } catch (error) {
-            console.error('Erro ao cadastrar produto:', error);
+            console.error('Erro ao processar produto:', error);
         }
     };
 
@@ -53,10 +78,10 @@ const ProductForm = ({ shopID, user, onClose, onSuccess }) => {
         <div className="w-full">
             <div className="text-center mb-8">
                 <h2 className="text-2xl font-light tracking-tight text-black">
-                    Novo Produto
+                    {isEditing ? 'Editar Produto' : 'Novo Produto'}
                 </h2>
                 <p className="mt-2 text-sm text-gray-500 font-light">
-                    Cadastre um novo item ao seu catálogo.
+                    {isEditing ? 'Atualize as informações do seu item.' : 'Cadastre um novo item ao seu catálogo.'}
                 </p>
             </div>
 
@@ -105,7 +130,7 @@ const ProductForm = ({ shopID, user, onClose, onSuccess }) => {
                                     </button>
                                 </div>
                             ))}
-                            {selectedImages.length < 5 && (
+                            {previews.length < 5 && (
                                 <label className="aspect-square flex flex-col items-center justify-center border-2 border-dashed border-gray-200 rounded-lg cursor-pointer hover:border-black transition-colors">
                                     <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 4v16m8-8H4" />
@@ -120,9 +145,9 @@ const ProductForm = ({ shopID, user, onClose, onSuccess }) => {
                                 </label>
                             )}
                         </div>
-                        {selectedImages.length > 0 && (
+                        {previews.length > 0 && (
                             <p className="mt-1 text-[10px] text-gray-400 uppercase">
-                                {selectedImages.length} de 5 arquivo(s) selecionado(s)
+                                {previews.length} de 5 arquivo(s) selecionado(s)
                             </p>
                         )}
                     </div>
@@ -152,7 +177,7 @@ const ProductForm = ({ shopID, user, onClose, onSuccess }) => {
                         type="submit"
                         className="flex-1 py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-black hover:bg-gray-800 transition-all active:scale-95"
                     >
-                        Salvar Produto
+                        {isEditing ? 'Atualizar' : 'Salvar'} Produto
                     </button>
                 </div>
             </form>
