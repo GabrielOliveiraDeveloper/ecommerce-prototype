@@ -9,10 +9,11 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage: storage }); 
 
 ProductRoutes.post('/products', authMiddleware, upload.array('images', 5), ProductsController.createProduct);
+
 ProductRoutes.get('/products', authMiddleware, ProductsController.getProducts);
 ProductRoutes.get('/products/:id', authMiddleware, ProductsController.getProductById);
 ProductRoutes.get('/products/shop/:shopID', authMiddleware, ProductsController.getProductsByShopId);
-ProductRoutes.put('/products/:id', authMiddleware, ProductsController.updateProduct);
+ProductRoutes.put('/products/:id', authMiddleware, upload.array('images', 5), ProductsController.updateProduct);
 ProductRoutes.delete('/products/:id', authMiddleware, ProductsController.deleteProduct);
 
 export default ProductRoutes;
