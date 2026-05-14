@@ -1017,14 +1017,6 @@ Este projeto está sob a licença **ISC**. Veja [LICENSE](LICENSE) para detalhes
 
 ---
 
-## 👨‍💻 Autor
-
-**Seu Nome**
-- GitHub: [@seu-usuario](https://github.com/seu-usuario)
-- Email: seu.email@exemplo.com
-
----
-
 ## 🙏 Agradecimentos
 
 - [Vercel](https://vercel.com/) - Deploy recomendado
