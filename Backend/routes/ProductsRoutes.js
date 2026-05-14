@@ -8,8 +8,8 @@ const ProductRoutes = express.Router();
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage }); 
 
+ProductRoutes.get('/products/all', ProductsController.returnAllProducts);
 ProductRoutes.post('/products', authMiddleware, upload.array('images', 5), ProductsController.createProduct);
-
 ProductRoutes.get('/products', authMiddleware, ProductsController.getProducts);
 ProductRoutes.get('/products/:id', authMiddleware, ProductsController.getProductById);
 ProductRoutes.get('/products/shop/:shopID', authMiddleware, ProductsController.getProductsByShopId);
