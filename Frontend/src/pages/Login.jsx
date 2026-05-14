@@ -4,88 +4,62 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
-
     const navigate = useNavigate();
-
-    const { 
-        register, 
-        handleSubmit, 
-        watch,
-        formState: { errors } 
-    } = useForm();
+    const { register, handleSubmit, formState: { errors } } = useForm();
 
     const onSubmit = async (data) => {
-        console.log(data)
-
         await axios.post('http://localhost:3000/auth/login', data)
             .then(response => {
-                console.log('Login bem-sucedido:', response.data);
-                navigate('/', {state: {user: {userID: response.data.userID, token: response.data.token}}});
+                localStorage.setItem('token', response.data.token);
+                localStorage.setItem('userID', response.data.userID);
+                navigate('/');
             })
             .catch(error => {
-                console.error('Erro ao fazer login:', error.response ? error.response.data : error.message);
-        });
-        
+                console.error(error.response ? error.response.data : error.message);
+            });
     }
 
     const redirectToRegister = () => {
         navigate('/register');
     }
     
-    
     return (
         <div className="min-h-screen bg-white flex items-center justify-center p-4">
             <div className="max-w-md w-full space-y-8 border border-gray-100 p-8 md:p-12 shadow-sm rounded-2xl">
-                
                 <div className="text-center">
-                    <h2 className="text-3xl font-light tracking-tight text-black">
-                        Bem-vindo
-                    </h2>
-                    <p className="mt-2 text-sm text-gray-500 font-light">
-                        Insira suas credenciais para acessar sua conta.
-                    </p>
+                    <h2 className="text-3xl font-light tracking-tight text-black">Bem-vindo</h2>
+                    <p className="mt-2 text-sm text-gray-500 font-light">Insira suas credenciais para acessar sua conta.</p>
                 </div>
 
-                
                 <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
                     <div className="space-y-4">
                         <div>
-                            <label htmlFor="email" className="block text-xs uppercase tracking-widest text-gray-400 font-semibold mb-1">
-                                Email
-                            </label>
+                            <label htmlFor="email" className="block text-xs uppercase tracking-widest text-gray-400 font-semibold mb-1">Email</label>
                             <input
                                 id="email"
-                                name="email"
                                 type="email"
                                 required
                                 className="appearance-none relative block w-full px-3 py-3 border border-gray-200 placeholder-gray-400 text-black rounded-lg focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-all duration-200 sm:text-sm"
                                 placeholder="exemplo@email.com"
-                                {...register('email', { required: 'Email é obrigatório' })}
+                                {...register('email', { required: true })}
                             />
                         </div>
                         <div>
-                            <label htmlFor="password" className="block text-xs uppercase tracking-widest text-gray-400 font-semibold mb-1">
-                                Senha
-                            </label>
+                            <label htmlFor="password" className="block text-xs uppercase tracking-widest text-gray-400 font-semibold mb-1">Senha</label>
                             <input
                                 id="password"
-                                name="password"
                                 type="password"
                                 required
                                 className="appearance-none relative block w-full px-3 py-3 border border-gray-200 placeholder-gray-400 text-black rounded-lg focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-all duration-200 sm:text-sm"
                                 placeholder="••••••••"
-                                {...register('password', { required: 'Senha é obrigatória' })}
+                                {...register('password', { required: true })}
                             />
                         </div>
                     </div>
 
                     <div className="flex items-center justify-between text-xs">
-
-
                         <div className="text-sm">
-                            <a href="#" className="font-medium text-black hover:underline underline-offset-4 transition-all">
-                                Esqueceu a senha?
-                            </a>
+                            <a href="#" className="font-medium text-black hover:underline underline-offset-4 transition-all">Esqueceu a senha?</a>
                         </div>
                     </div>
 
@@ -102,9 +76,7 @@ const Login = () => {
                 <div className="text-center mt-6">
                     <p className="text-sm text-gray-500">
                         Não tem uma conta?{' '}
-                        <a href="#" className="font-semibold text-black hover:underline underline-offset-4" onClick={redirectToRegister}>
-                            Cadastre-se
-                        </a>
+                        <a href="#" className="font-semibold text-black hover:underline underline-offset-4" onClick={redirectToRegister}>Cadastre-se</a>
                     </p>
                 </div>
             </div>
