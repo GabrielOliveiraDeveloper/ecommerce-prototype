@@ -5,7 +5,6 @@ import { useLocation } from 'react-router-dom';
 
 const RegisterShop = () => {
     const location = useLocation();
-
     const user = location.state?.user;
     
     const {
@@ -15,10 +14,13 @@ const RegisterShop = () => {
     } = useForm();
 
     const onSubmit = async (data) => {
-        console.log(data);
-        console.log(user);
-
-        await axios.post('http://localhost:3000/api/shops', JSON.stringify({name: data.shopName, description: data.description, category: data.category, ownerID: user.userID}), {
+        await axios.post('http://localhost:3000/api/shops', JSON.stringify({
+            name: data.shopName, 
+            description: data.description, 
+            category: data.category, 
+            pixKey: data.pixKey,
+            ownerID: user.userID
+        }), {
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${user.token}`
@@ -30,14 +32,11 @@ const RegisterShop = () => {
             .catch(error => {
                 console.error('Erro ao criar loja:', error.response ? error.response.data : error.message);
             });
-
     };
 
     return (
         <div>
-             <Header
-             user = {user}
-             />
+             <Header user={user} />
 
             <div className="min-h-screen bg-white flex items-center justify-center p-4">
                 <div className="max-w-md w-full space-y-8 border border-gray-100 p-8 md:p-12 shadow-sm rounded-2xl">
@@ -105,6 +104,22 @@ const RegisterShop = () => {
                                 </select>
                                 {errors.category && (
                                     <p className="mt-1 text-xs text-red-500">{errors.category.message}</p>
+                                )}
+                            </div>
+
+                            <div>
+                                <label htmlFor="pixKey" className="block text-xs uppercase tracking-widest text-gray-400 font-semibold mb-1">
+                                    Chave Pix
+                                </label>
+                                <input
+                                    id="pixKey"
+                                    type="text"
+                                    className="appearance-none relative block w-full px-3 py-3 border border-gray-200 placeholder-gray-300 text-black rounded-lg focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-all duration-200 sm:text-sm"
+                                    placeholder="CPF, CNPJ, E-mail, Celular ou Chave Aleatória"
+                                    {...register('pixKey', { required: 'Chave Pix é obrigatória' })}
+                                />
+                                {errors.pixKey && (
+                                    <p className="mt-1 text-xs text-red-500">{errors.pixKey.message}</p>
                                 )}
                             </div>
 

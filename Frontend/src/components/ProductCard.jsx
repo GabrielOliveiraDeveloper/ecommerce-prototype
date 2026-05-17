@@ -6,11 +6,13 @@ const ProductCard = ({ product }) => {
 
     const nextImage = (e) => {
         e.preventDefault();
+        e.stopPropagation();
         setCurrentImageIndex((prev) => (prev + 1) % images.length);
     };
 
     const prevImage = (e) => {
         e.preventDefault();
+        e.stopPropagation();
         setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
     };
 

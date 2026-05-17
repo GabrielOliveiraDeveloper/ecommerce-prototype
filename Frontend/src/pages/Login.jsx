@@ -10,9 +10,15 @@ const Login = () => {
     const onSubmit = async (data) => {
         await axios.post('http://localhost:3000/auth/login', data)
             .then(response => {
-                localStorage.setItem('token', response.data.token);
-                localStorage.setItem('userID', response.data.userID);
-                navigate('/');
+                /*localStorage.setItem('token', response.data.token);
+                localStorage.setItem('userID', response.data.userID); */
+
+                const user = {
+                    token: response.data.token,
+                    userID: response.data.userID
+                }
+                
+                navigate('/', { state: { user } });
             })
             .catch(error => {
                 console.error(error.response ? error.response.data : error.message);

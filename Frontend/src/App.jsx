@@ -16,12 +16,12 @@ function App() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
 
-                <Route element={<ProtectedRoute />}>
-                    <Route path="/register-shop" element={<RegisterShop />} />
-                    <Route path="/dashboard-store" element={<DashboardStore />} />
-                    <Route path="/manage-shops" element={<ManageShops />} />
-                    <Route path="/manage-products" element={<ManageProducts />} />
-                </Route>
+                
+                <Route path="/register-shop" element={<RegisterShop />} />
+                <Route path="/dashboard-store" element={<DashboardStore />} />
+                <Route path="/manage-shops" element={<ManageShops />} />
+                <Route path="/manage-products" element={<ManageProducts />} />
+
             </Routes>
         </BrowserRouter>
     );

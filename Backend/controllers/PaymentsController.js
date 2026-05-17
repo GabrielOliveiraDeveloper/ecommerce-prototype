@@ -2,24 +2,24 @@ import axios from 'axios';
 import Shop from '../models/Shop.js';
 
 const createPaymentWithSplit = async (req, res) => {
-    const { product, client } = req.body;
+  const {productOBJ, clientID} = req.body;                                             
 
-    const WOOVI_API_URL = process.env.WOOVI_API_URL;
-    const WOOVI_API_KEY = process.env.WOOVI_API_KEY;
-    const shop = await Shop.findById(product.idShop);
-    const pixKey = shop.pixKey;
+  const shop = await Shop.findById(productOBJ.idShop);
 
-    const body = {
-    correlationID: `pedido_${Date.now()}`,
-    value: '1000', 
-    comment: 'Compra no ecommerce-prototype',
-    splits: [
-      {
-        pixKey: pixKey,
-        splitType: 'PERCENTAGE',
-        value: product.price, 
-      }
-    ]
+  const WOOVI_API_KEY = process.env.WOOVI_API_KEY;
+  const WOOVI_API_URL = process.env.WOOVI_API_URL;
+
+  const body = {
+  correlationID: `pedido_${Date.now()}`,
+  value: productOBJ.price * 100,
+  comment: 'Compra no ecommerce-prototype',
+  splits: [
+    {
+      pixKey: shop.pixKey,
+      splitType: 'SPLIT_SUB_ACCOUNT', 
+      value: productOBJ.price * 100 * 0.9, 
+    }
+  ]
   };
 
   try {
@@ -30,18 +30,22 @@ const createPaymentWithSplit = async (req, res) => {
       }
     });
 
-    res.send( 
-        {
-            qrCodeImage: response.data.charge.qrCodeImage,
-            brCode: response.data.charge.brCode
-        }
-    );
-
+    res.send({
+      qrCodeImage: response.data.charge.qrCodeImage,
+      brCode: response.data.charge.brCode
+    });
   } catch (error) {
-    console.error('Erro ao gerar Pix:', error.response.data);
+    console.error('Erro ao gerar Pix:', error.response?.data);
+    res.status(500).json({ error: error.response?.data });
   }
 };
 
+const webhookPaymentReceived = async (req, res) => {
+  res.status(200).json({ message: 'Webhook recebido com sucesso' });
+}
 
 
-export { createPaymentWithSplit };
+
+
+
+export { createPaymentWithSplit, webhookPaymentReceived };

@@ -1,12 +1,13 @@
 import Shop from '../models/Shop.js';
 
 const createShop = async (req, res) => {
-    const { name, description, category, ownerID } = req.body;
+    const { name, description, category, pixKey, ownerID } = req.body;
 
     const newShop = new Shop({
         name,
         description,
         category,
+        pixKey,
         owner: ownerID
     });
 
@@ -51,9 +52,9 @@ const getShopById = async (req, res) => {
 
 const updateShop = async (req, res) => {
     const { id } = req.params;
-    const { name, description, category } = req.body;
+    const { name, description, category, pixKey } = req.body;
     try {
-        const updatedShop = await Shop.findByIdAndUpdate(id, { name, description, category }, { new: true });
+        const updatedShop = await Shop.findByIdAndUpdate(id, { name, description, category, pixKey }, { new: true });
         if (!updatedShop) {
             return res.status(404).json({ message: 'Shop not found' });
         }

@@ -3,12 +3,14 @@ import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 import Header from '../components/Header';
 import ProductCard from '../components/ProductCard';
+import ProductDetails from '../components/ProductDetails';
 
 const Home = () => {
     const location = useLocation();
     const user = location.state?.user;
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [selectedProduct, setSelectedProduct] = useState(null);
 
     useEffect(() => {
         const fetchProducts = async () => {
@@ -46,7 +48,13 @@ const Home = () => {
                 ) : products.length > 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                         {products.map((product) => (
-                            <ProductCard key={product._id} product={product} />
+                            <div 
+                                key={product._id} 
+                                onClick={() => setSelectedProduct(product)}
+                                className="cursor-pointer"
+                            >
+                                <ProductCard product={product} />
+                            </div>
                         ))}
                     </div>
                 ) : (
@@ -55,6 +63,14 @@ const Home = () => {
                     </div>
                 )}
             </main>
+
+            {selectedProduct && (
+                <ProductDetails 
+                    product={selectedProduct} 
+                    clientID={user?._id || user?.id} 
+                    onClose={() => setSelectedProduct(null)} 
+                />
+            )}
         </div>
     );
 }
