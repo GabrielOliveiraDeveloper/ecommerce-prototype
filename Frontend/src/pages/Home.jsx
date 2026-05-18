@@ -67,7 +67,7 @@ const Home = () => {
             {selectedProduct && (
                 <ProductDetails 
                     product={selectedProduct} 
-                    clientID={user?._id || user?.id} 
+                    clientID={user.userID} 
                     onClose={() => setSelectedProduct(null)} 
                 />
             )}

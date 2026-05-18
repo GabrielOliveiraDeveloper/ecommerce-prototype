@@ -7,7 +7,7 @@ const orderSchema = new mongoose.Schema(
       ref: "Shop",
       required: true,
     },
-    chardID: {
+    chargeID: {
         type: String,
         required: true,
     },

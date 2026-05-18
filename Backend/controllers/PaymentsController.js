@@ -6,7 +6,7 @@ const createPaymentWithSplit = async (req, res) => {
   const {productOBJ, clientID} = req.body;                                             
 
   const shop = await Shop.findById(productOBJ.idShop);
-
+  console.log('productOBJ:', productOBJ, 'clientID:', clientID);
   const WOOVI_API_KEY = process.env.WOOVI_API_KEY;
   const WOOVI_API_URL = process.env.WOOVI_API_URL;
 
@@ -31,16 +31,18 @@ const createPaymentWithSplit = async (req, res) => {
       }
     });
 
-    /*const order = new Order({
+    console.log('Resposta da Woovi:', response.data.charge.identifier);
+
+    const order = new Order({
       shopID: productOBJ.idShop,
-      chardID: response.data.charge.id,
+      chargeID: response.data.charge.identifier,
       productID: productOBJ._id,
       qrCode: response.data.charge.qrCodeImage,
       brCode: response.data.charge.brCode,
       clientID: clientID,
     });
 
-    await order.save();  */
+    await order.save();  
 
     res.send({
       qrCodeImage: response.data.charge.qrCodeImage,
@@ -57,7 +59,7 @@ const webhookPaymentReceived = async (req, res) => {
     const { charge } = req.body;
 
     if (charge.status === 'COMPLETED') {
-      const order = await Order.findOne({ chargeID: charge.id });
+      const order = await Order.findOne({ chargeID: charge.identifier });
 
       if (!order) {
         return res.status(404).json({ error: 'Pedido não encontrado' });
@@ -78,10 +80,10 @@ const webhookPaymentReceived = async (req, res) => {
     }
 
     if (charge.status === 'CANCELLED' || charge.status === 'EXPIRED') {
-      const order = await Order.findOne({ chargeID: charge.id });
+      const order = await Order.findOne({ chargeID: charge.identifier });
       
       if (order) {
-        order.status = 'cancelled';
+        order.status = 'CANCELLED';
         await order.save();
       }
     }

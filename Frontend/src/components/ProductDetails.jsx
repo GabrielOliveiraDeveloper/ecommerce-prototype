@@ -23,7 +23,8 @@ const ProductDetails = ({ product, clientID, onClose }) => {
         try {
             const productOBJ = {
                 idShop: product.idShop,
-                price: product.price
+                price: product.price,
+                _id: product._id
             };
             const response = await axios.post('http://localhost:3000/api/payments', {
                 productOBJ,
