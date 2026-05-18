@@ -31,7 +31,7 @@ const createPaymentWithSplit = async (req, res) => {
       }
     });
 
-    const order = new Order({
+    /*const order = new Order({
       shopID: productOBJ.idShop,
       chardID: response.data.charge.id,
       productID: productOBJ._id,
@@ -40,7 +40,7 @@ const createPaymentWithSplit = async (req, res) => {
       clientID: clientID,
     });
 
-    await order.save();
+    await order.save();  */
 
     res.send({
       qrCodeImage: response.data.charge.qrCodeImage,
