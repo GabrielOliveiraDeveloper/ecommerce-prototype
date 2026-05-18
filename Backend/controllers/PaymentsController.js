@@ -1,5 +1,6 @@
 import axios from 'axios';
 import Shop from '../models/Shop.js';
+import Order from '../models/Order.js';
 
 const createPaymentWithSplit = async (req, res) => {
   const {productOBJ, clientID} = req.body;                                             
@@ -30,6 +31,17 @@ const createPaymentWithSplit = async (req, res) => {
       }
     });
 
+    const order = new Order({
+      shopID: productOBJ.idShop,
+      chardID: response.data.charge.id,
+      productID: productOBJ._id,
+      qrCode: response.data.charge.qrCodeImage,
+      brCode: response.data.charge.brCode,
+      clientID: clientID,
+    });
+
+    await order.save();
+
     res.send({
       qrCodeImage: response.data.charge.qrCodeImage,
       brCode: response.data.charge.brCode
@@ -41,9 +53,46 @@ const createPaymentWithSplit = async (req, res) => {
 };
 
 const webhookPaymentReceived = async (req, res) => {
-  res.status(200).json({ message: 'Webhook recebido com sucesso' });
-}
+  try {
+    const { charge } = req.body;
 
+    if (charge.status === 'COMPLETED') {
+      const order = await Order.findOne({ chargeID: charge.id });
+
+      if (!order) {
+        return res.status(404).json({ error: 'Pedido não encontrado' });
+      }
+
+      order.status = 'PAID';
+      order.paidAt = new Date();
+      order.transactionID = charge.transactionID; 
+      await order.save();
+
+
+      console.log(`Pagamento confirmado para pedido: ${order._id}`);
+
+      return res.status(200).json({ 
+        success: true, 
+        message: 'Pagamento processado com sucesso' 
+      });
+    }
+
+    if (charge.status === 'CANCELLED' || charge.status === 'EXPIRED') {
+      const order = await Order.findOne({ chargeID: charge.id });
+      
+      if (order) {
+        order.status = 'cancelled';
+        await order.save();
+      }
+    }
+
+    res.status(200).json({ message: 'Webhook processado' });
+
+  } catch (error) {
+    console.error('Erro ao processar webhook:', error);
+    res.status(500).json({ error: 'Erro ao processar webhook' });
+  }
+};
 
 
 

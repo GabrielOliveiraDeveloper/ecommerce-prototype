@@ -29,6 +29,10 @@ const orderSchema = new mongoose.Schema(
         ref: "User",
         required: true,
     },
+    paidAt: {
+        type: Date,
+        required: false,
+    },
     status: {
         type: String,
         enum: ['PENDING', 'PAID', 'CANCELLED'],
