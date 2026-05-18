@@ -6,7 +6,6 @@ const createPaymentWithSplit = async (req, res) => {
   const {productOBJ, clientID} = req.body;                                             
 
   const shop = await Shop.findById(productOBJ.idShop);
-  console.log('productOBJ:', productOBJ, 'clientID:', clientID);
   const WOOVI_API_KEY = process.env.WOOVI_API_KEY;
   const WOOVI_API_URL = process.env.WOOVI_API_URL;
 
